@@ -7,28 +7,28 @@ import (
 )
 
 const (
-	envTelegramAppID      = "TELEGRAM_APP_ID"
-	envTelegramAppHash    = "TELEGRAM_APP_HASH"
-	envSessionStoragePath = "SESSION_STORAGE_PATH"
+	envTelegramAppID             = "TELEGRAM_APP_ID"
+	envTelegramAppHash           = "TELEGRAM_APP_HASH"
+	envSessionStoragePath        = "SESSION_STORAGE_PATH"
+	envTelegramChannelID         = "TELEGRAM_CHANNEL_ID"
+	envTelegramChannelAccessHash = "TELEGRAM_CHANNEL_ACCESS_HASH"
 )
 
 type config struct {
-	TelegramAppID      int
-	TelegramAppHash    string
-	SessionStoragePath string
+	TelegramAppID             int
+	TelegramAppHash           string
+	SessionStoragePath        string
+	TelegramChannelID         int64
+	TelegramChannelAccessHash int64
 }
 
 func Load() (config, error) {
 	c := config{}
-	var err error
 
-	var value string
+	var err error
 	var exists bool
-	value, exists = os.LookupEnv(envTelegramAppID)
-	if !exists {
-		return config{}, fmt.Errorf("%w: %s", ErrKeyNotExists, envTelegramAppID)
-	}
-	c.TelegramAppID, err = strconv.Atoi(value)
+
+	c.TelegramAppID, err = strconv.Atoi(os.Getenv(envTelegramAppID))
 	if err != nil {
 		return config{}, fmt.Errorf("%w: %s: %s", ErrKeyParse, envTelegramAppID, err.Error())
 	}
@@ -39,6 +39,16 @@ func Load() (config, error) {
 	}
 
 	c.SessionStoragePath = os.Getenv(envSessionStoragePath)
+
+	c.TelegramChannelID, err = strconv.ParseInt(os.Getenv(envTelegramChannelID), 10, 64)
+	if err != nil {
+		return config{}, fmt.Errorf("%w: %s: %s", ErrKeyParse, envTelegramChannelID, err.Error())
+	}
+
+	c.TelegramChannelAccessHash, err = strconv.ParseInt(os.Getenv(envTelegramChannelAccessHash), 10, 64)
+	if err != nil {
+		return config{}, fmt.Errorf("%w: %s: %s", ErrKeyParse, envTelegramChannelAccessHash, err.Error())
+	}
 
 	return c, nil
 }
