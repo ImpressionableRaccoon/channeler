@@ -12,6 +12,8 @@ import (
 	"github.com/gotd/td/telegram/auth"
 	"github.com/gotd/td/tg"
 	"go.uber.org/zap"
+
+	"github.com/ImpressionableRaccoon/channeler/internal/datarealm"
 )
 
 type client struct {
@@ -19,7 +21,7 @@ type client struct {
 	stopFunc bg.StopFunc
 }
 
-var _ StatManager = client{}
+var _ datarealm.StatManager = client{}
 
 func New(logger *zap.Logger, sessionStoragePath string, appID int, appHash string) (client, error) {
 	c := client{}

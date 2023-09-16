@@ -13,12 +13,10 @@ import (
 	"github.com/ImpressionableRaccoon/channeler/internal/stats"
 )
 
-var (
-	logger *zap.Logger
-	err    error
-)
+var logger *zap.Logger
 
 func init() {
+	var err error
 	logger, err = zap.NewProduction(zap.AddStacktrace(zapcore.PanicLevel))
 	if err != nil {
 		panic(fmt.Errorf("error create logger: %w", err))
