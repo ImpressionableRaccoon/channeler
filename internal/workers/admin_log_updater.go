@@ -39,31 +39,46 @@ func (w workers) AdminLogUpdater(ctx context.Context, interval time.Duration, ch
 func (w workers) updateAdminLog(ctx context.Context, channelID, channelAccessHash, minID int64) (
 	lastEventID int64, err error,
 ) {
-	lastEventID = minID
+	if err = ctx.Err(); err != nil {
+		return minID, err
+	}
 
 	resp, err := w.sm.GetChannelAdminLog(ctx, channelID, channelAccessHash, minID)
 	if err != nil {
-		return lastEventID, err
+		return lastEventID, fmt.Errorf("error while getting channel admin log: %w", err)
 	}
 
-	if events := resp.GetEvents(); len(events) > 0 {
-		// TODO: replace with storager
-		fmt.Println("New events:")
-		for i, event := range events {
-			fmt.Printf("%d: %+v\n", i, event)
+	var saveError bool
+	maxEventID := minID
 
-			if event.ID > lastEventID {
-				lastEventID = event.ID
+	if events := resp.GetEvents(); len(events) > 0 {
+		for _, event := range events {
+			err = w.st.AddEvent(ctx, event)
+			if err != nil {
+				w.logger.Error("error saving event", zap.Error(err))
+				saveError = true
+			}
+			if event.ID > maxEventID {
+				maxEventID = event.ID
 			}
 		}
 	}
 
 	if users := resp.GetUsers(); len(users) > 0 {
-		// TODO: replace with storager
-		fmt.Println("New users:")
-		for i, user := range users {
-			fmt.Printf("%d: %+v\n", i, user)
+		for _, user := range users {
+			err = w.st.AddUser(ctx, user)
+			if err != nil {
+				w.logger.Error("error saving user", zap.Error(err))
+				saveError = true
+			}
 		}
+	}
+
+	if saveError {
+		w.logger.Warn("error occurred while saving, will not update lastEventID")
+		lastEventID = minID
+	} else {
+		lastEventID = maxEventID
 	}
 
 	return lastEventID, nil

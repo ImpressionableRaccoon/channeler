@@ -1,10 +1,12 @@
 package datarealm
 
+import "time"
+
 type Event struct {
 	// Event ID
 	ID int64
 	// Date
-	Date int
+	Date time.Time
 	// User ID
 	UserID int64
 	// Type is action type

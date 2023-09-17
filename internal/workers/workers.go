@@ -8,12 +8,14 @@ import (
 
 type workers struct {
 	logger *zap.Logger
+	st     datarealm.Storager
 	sm     datarealm.StatManager
 }
 
-func New(logger *zap.Logger, sm datarealm.StatManager) (workers, error) {
+func New(logger *zap.Logger, st datarealm.Storager, sm datarealm.StatManager) (workers, error) {
 	return workers{
 		logger: logger,
+		st:     st,
 		sm:     sm,
 	}, nil
 }

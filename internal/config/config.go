@@ -12,6 +12,8 @@ const (
 	envSessionStoragePath        = "SESSION_STORAGE_PATH"
 	envTelegramChannelID         = "TELEGRAM_CHANNEL_ID"
 	envTelegramChannelAccessHash = "TELEGRAM_CHANNEL_ACCESS_HASH"
+	envYDBConnectionString       = "YDB_CONNECTION_STRING"
+	envTablePathPrefix           = "TABLE_PATH_PREFIX"
 )
 
 type config struct {
@@ -20,6 +22,8 @@ type config struct {
 	SessionStoragePath        string
 	TelegramChannelID         int64
 	TelegramChannelAccessHash int64
+	YDBConnectionString       string
+	TablePathPrefix           string
 }
 
 func Load() (config, error) {
@@ -49,6 +53,9 @@ func Load() (config, error) {
 	if err != nil {
 		return config{}, fmt.Errorf("%w: %s: %s", ErrKeyParse, envTelegramChannelAccessHash, err.Error())
 	}
+
+	c.YDBConnectionString = os.Getenv(envYDBConnectionString)
+	c.TablePathPrefix = os.Getenv(envTablePathPrefix)
 
 	return c, nil
 }

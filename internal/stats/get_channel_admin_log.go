@@ -3,6 +3,7 @@ package stats
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/gotd/td/tg"
 
@@ -46,7 +47,7 @@ func (c client) GetChannelAdminLog(ctx context.Context, channelID, channelAccess
 	for _, event := range resp.GetEvents() {
 		e := datarealm.Event{
 			ID:         event.GetID(),
-			Date:       event.GetDate(),
+			Date:       time.Unix(int64(event.GetDate()), 0),
 			UserID:     event.GetUserID(),
 			ActionType: event.GetAction().TypeName(),
 		}

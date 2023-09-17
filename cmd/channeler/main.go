@@ -12,6 +12,7 @@ import (
 
 	"github.com/ImpressionableRaccoon/channeler/internal/config"
 	"github.com/ImpressionableRaccoon/channeler/internal/stats"
+	"github.com/ImpressionableRaccoon/channeler/internal/storage/ydb"
 	"github.com/ImpressionableRaccoon/channeler/internal/workers"
 )
 
@@ -36,6 +37,17 @@ func main() {
 		logger.Panic("load config failed", zap.Error(err))
 	}
 
+	st, err := ydb.New(ctx, logger, c.YDBConnectionString, c.TablePathPrefix)
+	if err != nil {
+		logger.Panic("init ydb storager failed", zap.Error(err))
+	}
+	defer func() {
+		err := st.Stop(context.Background())
+		if err != nil {
+			logger.Error("error stopping ydb storage", zap.Error(err))
+		}
+	}()
+
 	sm, err := stats.New(logger, c.SessionStoragePath, c.TelegramAppID, c.TelegramAppHash)
 	if err != nil {
 		logger.Panic("init stats client failed", zap.Error(err))
@@ -47,7 +59,7 @@ func main() {
 		}
 	}()
 
-	w, err := workers.New(logger, &sm)
+	w, err := workers.New(logger, st, &sm)
 	if err != nil {
 		logger.Panic("init workers failed", zap.Error(err))
 	}
