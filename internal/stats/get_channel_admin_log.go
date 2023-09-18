@@ -64,14 +64,7 @@ func (c client) GetChannelAdminLog(ctx context.Context, channelID, channelAccess
 		if !ok {
 			continue
 		}
-		res.Users = append(res.Users, datarealm.User{
-			ID:         u.GetID(),
-			AccessHash: u.AccessHash,
-			FirstName:  u.FirstName,
-			LastName:   u.LastName,
-			Username:   u.Username,
-			Phone:      u.Phone,
-		})
+		res.Users = append(res.Users, tgUserToDataRealmUser(u))
 	}
 
 	return res, nil
