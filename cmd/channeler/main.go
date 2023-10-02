@@ -19,8 +19,20 @@ import (
 var logger *zap.Logger
 
 func init() {
+	cfg := zap.Config{
+		Level:       zap.NewAtomicLevelAt(zap.DebugLevel),
+		Development: false,
+		Sampling: &zap.SamplingConfig{
+			Initial:    100,
+			Thereafter: 100,
+		},
+		Encoding:         "json",
+		EncoderConfig:    zap.NewProductionEncoderConfig(),
+		OutputPaths:      []string{"stderr"},
+		ErrorOutputPaths: []string{"stderr"},
+	}
 	var err error
-	logger, err = zap.NewProduction(zap.AddStacktrace(zapcore.PanicLevel))
+	logger, err = cfg.Build(zap.AddStacktrace(zapcore.PanicLevel))
 	if err != nil {
 		panic(fmt.Errorf("error create logger: %w", err))
 	}
