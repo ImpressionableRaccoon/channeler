@@ -10,6 +10,7 @@ import (
 	environ "github.com/ydb-platform/ydb-go-sdk-auth-environ"
 	ydbZap "github.com/ydb-platform/ydb-go-sdk-zap"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
+	"github.com/ydb-platform/ydb-go-sdk/v3/balancers"
 	"github.com/ydb-platform/ydb-go-sdk/v3/trace"
 	"go.uber.org/zap"
 
@@ -41,6 +42,7 @@ func New(ctx context.Context, logger *zap.Logger, dsn string, pathPrefix string)
 
 	s.cc, err = ydb.Open(ctx,
 		dsn,
+		ydb.WithBalancer(balancers.SingleConn()),
 		environ.WithEnvironCredentials(ctx),
 		ydbZap.WithTraces(
 			logger,
